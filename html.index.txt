@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Egior Parfum - L'Élégance, Capturée</title>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load React, ReactDOM, and Babel CDNs for browser-side JSX compilation -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Set up custom fonts (Inter is default, Playfair Display is custom) -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+        html { scroll-behavior: smooth; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-playfair-display { font-family: 'Playfair Display', serif; }
+        .transition-max-height { transition-property: max-height; }
+        /* Ensuring proper RTL for Arabic labels/placeholders where specified */
+        .text-right { text-align: right; }
+        [dir="rtl"] { direction: rtl; }
+        /* Custom Tailwind Configuration (optional, but good practice for ensuring colors/fonts) */
+        :root {
+            --color-amber-500: #f59e0b;
+            --color-stone-950: #0c0a09;
+        }
+        .bg-stone-950 { background-color: var(--color-stone-950); }
+        .text-amber-500 { color: var(--color-amber-500); }
+    </style>
+</head>
+<body class="bg-stone-950">
+
+    <!-- The root element where React will mount the application -->
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Import necessary icons from Lucide library (using a mock object since real import doesn't work with CDN Babel)
+        const { useState, useEffect, useMemo } = React;
+        const { Menu, X, Droplet, Mail, Ruler, Users, ListChecks, ShoppingBag, Send, Clock, PhoneCall, CheckCircle } = {
+            Menu: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>,
+            X: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
+            Droplet: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 16-4 4V4c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v10.5l-4-4c-.8-.7-2-1-3-1s-2.2.3-3 1z"/><path d="M13 14c1.1 0 2-.9 2-2s-.9-2-2-2"/></svg>,
+            Mail: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-10 7L2 7"/></svg>,
+            Ruler: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 19 8.8 14.8c-.8-.8-1.5-2.2-1.5-3.5 0-1.3.7-2.7 1.5-3.5l4.2-4.2"/><path d="m21.5 12.1-4.2 4.2c-.8.8-2.2 1.5-3.5 1.5-1.3 0-2.7-.7-3.5-1.5l-4.2-4.2"/><path d="m14.5 9.5-4.2 4.2"/></svg>,
+            Users: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+            ListChecks: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 21 2-2 4-4"/><path d="M13 18h7"/><path d="M13 14h7"/><path d="M13 10h7"/><path d="M3 6h18"/></svg>,
+            ShoppingBag: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>,
+            Send: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M15 15 2 2"/></svg>,
+            Clock: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+            PhoneCall: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+            CheckCircle: (props) => <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+        };
+
+        // --- MOCK CATALOG DATA (Structured by Brand) ---
+        const menCatalog = [
+            { brand: 'AZZARO', perfumes: ['WANTED'] },
+            { brand: 'BOSS', perfumes: ['HUGO BOSS', 'BOSS BOTTLED'] },
+            { brand: 'CARTIER', perfumes: ['DECLARATION'] },
+            { brand: 'CHANEL', perfumes: ['ALLURE SPORT', 'BLEU DE CHANEL', 'EGOÏSTE PLATINUM'] },
+            { brand: 'CAROLINA HERRERA (CH)', perfumes: ['212 VIP', 'BAD BOY'] },
+            { brand: 'CALVIN KLEIN', perfumes: ['CK ONE'] },
+            { brand: 'CREED 1760', perfumes: ['AVENTUS'] },
+            { brand: 'DIESEL', perfumes: ['BAD DIESEL', 'DIESEL FUEL FOR LIFE'] },
+            { brand: 'DIOR', perfumes: ['SAUVAGE', 'FAHRENHEIT', 'BOIS D’ARGENT', 'DIOR HOMME', 'SAUVAGE ELIXIR'] },
+            { brand: 'DOLCE & GABBANA (D&G)', perfumes: ['LIGHT BLUE', 'THE ONE', 'INTENSO'] },
+            { brand: 'GIVENCHY', perfumes: ['GENTLEMEN'] },
+            { brand: 'GUCCI', perfumes: ['GUILTY GUCCI', 'GUCCI OUD'] },
+            { brand: 'GIORGIO ARMANI', perfumes: ['ACQUA DI GIO', 'STRONGER WITH YOU'] },
+            { brand: 'HERMES', perfumes: ['TERRE D’HERMES'] },
+            { brand: 'JEAN PAUL GAULTIER', perfumes: ['LE BEAU', 'LE BEAU PARADISE GARDEN', 'SCANDAL HOMME', 'LE MALE'] },
+            { brand: 'LACOSTE', perfumes: ['LACOSTE BLANC', 'LACOSTE NOIR', 'LACOSTE ESSENTIAL'] },
+            { brand: 'LOUIS VUITTON', perfumes: ['IMAGINATION', 'OMBRE NOMADE'] },
+            { brand: 'MONTBLANC®', perfumes: ['EXPLORER', 'SIGNATURE', 'LEGEND'] },
+            { brand: 'NISHANE ISTANBUL', perfumes: ['NISHANE'] },
+            { brand: 'PACO RABANNE', perfumes: ['BLACK XS L’EXCÈS', 'INVICTUS', 'INVICTUS VICTORY ELIXIR', 'ONE MILLION', 'PHANTOM', 'PURE XS'] },
+            { brand: 'PRADA', perfumes: ['PRADA MAN'] },
+            { brand: 'PARFUMS ORIENTAUX', perfumes: ['AMEER AL OUD', 'ANA ABIYEDH'] },
+            { brand: 'TOM FORD', perfumes: ['BLACK ORCHID', 'OUD WOOD', 'OMBRE LEATHER', 'TOBACCO OUD', 'ROSE D’ARABI'] },
+            { brand: 'VALENTINO', perfumes: ['VALENTINO UOMO'] },
+            { brand: 'VIKTOR & ROLF', perfumes: ['SPICEBOMB'] },
+            { brand: 'VERSACE', perfumes: ['EROS', 'VERSACE POUR HOMME'] },
+            { brand: 'ZARA', perfumes: ['ZARA HOMME NIGHT'] },
+            { brand: 'YVES SAINT LAURENT', perfumes: ['LA NUIT DE L’HOMME BLEU', 'L’HOMME LE PARFUM'] },
+        ];
+
+        const womenCatalog = [
+            { brand: 'GIORGIO ARMANI', perfumes: ['SI', 'SI PASSIONE', 'SI PASSIONE RED', 'MY WAY', 'IN LOVE WITH YOU'] },
+            { brand: 'AVON', perfumes: ['AVON', 'FARAWAY'] },
+            { brand: 'AMOUAGE', perfumes: ['AMOUAGE'] },
+            { brand: 'BURBERRY®', perfumes: ['HER', 'GODDESS', 'WEEK END'] },
+            { brand: 'CAROLINA HERRERA (CH)', perfumes: ['GOOD GIRL SUPREME', 'GOOD GIRL', '212 VIP'] },
+            { brand: 'CARTIER', perfumes: ['LA PANTHERE'] },
+            { brand: ['CACHAREL'], perfumes: ['AMOR AMOR'] },
+            { brand: 'CHANEL', perfumes: ['COCO CHANEL', 'COCO MADEMOISELLE', 'CHANCE', 'PARIS', 'ALLURE'] },
+            { brand: 'DIOR', perfumes: ['DIOR ADDICT', 'POISON GIRL', 'HYPNOTIC POISON', 'MISS DIOR CHERIE', 'OUD ISPAHAN', 'J\'ADORE'] },
+            { brand: 'DOLCE & GABBANA (D&G)', perfumes: ['THE ONE GOLD', 'LIGHT BLUE', 'L\'IMPERATRICE', 'DEVOTION', 'THE ONLY ONE'] },
+            { brand: 'ELIE SAAB', perfumes: ['ELIE SAAB', 'FLEUR D\'ORANGER', 'GIRL OF NOW'] },
+            { brand: 'ESCADA', perfumes: ['ESCADA TAJ'] },
+            { brand: 'GUERLAIN PARIS', perfumes: ['INSOLENCE', 'LA PETITE ROBE NOIR', 'MON GUERLAIN'] },
+            { brand: 'GUCCI', perfumes: ['GUILTY', 'GUCCI OUD', 'GUCCI BLOOM', 'FLORA'] },
+            { brand: 'GIVENCHY', perfumes: ['L\'INTERDIT', 'VERY IRRESISTIBLE', 'AMARIGE'] },
+            { brand: 'GISSAH', perfumes: ['IMPERIALE VALLY', 'GISSAH'] },
+            { brand: 'HERMES', perfumes: ['HERMES'] },
+            { brand: 'JEAN PAUL GAULTIER', perfumes: ['SCANDAL', 'LA BELLE', 'SO SCANDAL', 'GAULTIER DIVINE', 'FLOWER'] },
+            { brand: 'KAY ALI', perfumes: ['KAYALI 21', 'KAYALI 28'] },
+            { brand: 'LANCÔME PARIS', perfumes: ['IDOLE', 'LA VIE EST BELLE', 'LA NUIT TRESORT', 'LA VIE EST BELLE L\'ECLAT', 'TRESOR MIDNIGHT ROSE', 'ÔUD BOUQUET'] },
+            { brand: 'LANVIN', perfumes: ['ÉCLAT'] },
+            { brand: 'LOUIS VUITTON', perfumes: ['LOUIS VUITTON'] },
+            { brand: 'PARFUMS de MARLY', perfumes: ['DELINA'] },
+            { brand: 'MUGLER', perfumes: ['ALIEN'] },
+            { brand: 'MIZENSIR', perfumes: ['FIVE DELICIEUX', 'NINA RICCI', 'NINA FANTASY'] },
+            { brand: 'NAUTICA', perfumes: ['NAUTICA'] },
+            { brand: 'NARCISO RODRIGUEZ', perfumes: ['NARCISO RODRIGUEZ', 'NARCISO POUDRE', 'NARCISO MUSC NOIR'] },
+            { brand: 'ORIFLAME SWEDEN', perfumes: ['GIORDANI'] },
+            { brand: 'PARFUMS ORIENTAUX', perfumes: ['AMEERAT AL ARAB', 'YARA', 'RAGHBA', 'KHAMRA', 'ANA ABIYEDH', 'ARABIAN TONKA'] },
+            { brand: 'PARI HILTON', perfumes: ['PARI HILTON'] },
+            { brand: 'PRADA', perfumes: ['PARADOX'] },
+            { brand: 'PACO RABANNE', perfumes: ['PURE XS FOR HER', 'LADY MILLION PRIVE', 'LADY MILLION', 'OLYMPEA'] },
+            { brand: 'TOM FORD', perfumes: ['LOST CHERRY', 'ROSE D\'ARABI'] },
+            { brand: 'VERSACE', perfumes: ['CRYSTAL NOIR'] },
+            { brand: 'VIKTOR&ROLF', perfumes: ['FLOWERBOMB'] },
+            { brand: 'VALENTINO', perfumes: ['VALENTINO DONNA', 'VALENTINO BORN IN ROMA'] },
+            { brand: 'VICTORIA\'S SECRET', perfumes: ['VICTORIA SECRET'] },
+            { brand: 'ROBERTO CAVALLI', perfumes: ['ROBERTO CAVALLI F'] },
+            { brand: 'YVES SAINT LAURENT', perfumes: ['BLACK OPIUM', 'CINEMA', 'LIBRE', 'MON PARIS'] },
+            { brand: 'YVES ROCHER', perfumes: ['EVIDENCE'] },
+            { brand: 'XERJOFF', perfumes: ['NAXOS'] },
+            { brand: 'ZARA', perfumes: ['ZARA FEMME'] },
+        ];
+
+
+        // --- 1. HEADER COMPONENT ---
+        const Header = () => {
+          const [isOpen, setIsOpen] = useState(false);
+
+          const navItems = [
+            { name: 'Accueil', href: '#home' },
+            { name: 'Catalogue', href: '#catalog' },
+            { name: 'Commander', href: '#how-to-order' },
+            { name: 'Notre Histoire', href: '#about' },
+            { name: 'Contact', href: '#contact' },
+          ];
+
+          return (
+            <header className="fixed top-0 left-0 right-0 z-50 bg-stone-950/90 backdrop-blur-sm shadow-xl transition-all duration-300 border-b border-amber-500/10">
+              <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-center h-16">
+                  {/* Logo/Brand Name with Droplet Icon */}
+                  <a href="#home" className="flex items-center space-x-2 text-2xl font-playfair-display font-extrabold tracking-widest text-amber-500 transition-colors hover:text-amber-400">
+                    <Droplet size={28} className="text-amber-500 transition-colors" />
+                    <span>EGIOR PARFUM</span>
+                  </a>
+                  
+                  {/* Desktop Navigation */}
+                  <div className="hidden md:flex items-center space-x-8">
+                    {navItems.map((item) => (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        className="text-sm font-medium text-white hover:text-amber-500 transition-colors uppercase tracking-widest"
+                      >
+                        {item.name}
+                      </a>
+                    ))}
+                  </div>
+
+                  {/* Mobile Menu Button */}
+                  <div className="md:hidden flex items-center">
+                    <button
+                      onClick={() => setIsOpen(!isOpen)}
+                      className="p-2 rounded-md text-white hover:text-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    >
+                      {isOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                  </div>
+                </div>
+              </nav>
+
+              {/* Mobile Menu Drawer */}
+              <div className={`md:hidden overflow-hidden transition-max-height duration-500 ease-in-out ${isOpen ? 'max-h-96' : 'max-h-0'}`}>
+                <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-zinc-700 bg-stone-950">
+                  {navItems.map((item) => (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-zinc-800 hover:text-amber-500 uppercase tracking-wider transition-colors"
+                    >
+                      {item.name}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </header>
+          );
+        };
+
+        // --- 2. HERO SECTION ---
+        const HeroSection = () => (
+          <section id="home" className="relative h-screen flex items-center justify-center text-center bg-stone-950 overflow-hidden pt-16">
+            {/* Background Image/Overlay for Classy Look */}
+            <div className="absolute inset-0 z-0 opacity-40" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1596495578051-285094a86e9b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)', backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
+            
+            <div className="relative z-10 p-6 md:p-12 max-w-5xl mx-auto rounded-xl">
+              <p className="text-xl md:text-3xl font-playfair-display italic text-amber-300 mb-4 tracking-wider">
+                L'Essence de l'Éternité
+              </p>
+              <h1 className="text-6xl md:text-9xl font-playfair-display font-extrabold text-white leading-none mb-6 tracking-tight drop-shadow-lg">
+                L'Élégance, Capturée.
+              </h1>
+              <a
+                href="#how-to-order"
+                className="inline-block px-10 py-4 text-lg font-semibold text-stone-950 bg-amber-500 rounded-full shadow-2xl transition-transform transform hover:scale-105 hover:bg-amber-400 focus:outline-none focus:ring-4 focus:ring-amber-500 focus:ring-opacity-50 uppercase tracking-widest mt-8"
+              >
+                Passer Commande
+              </a>
+            </div>
+          </section>
+        );
+
+        // --- 3. CATALOG COMPONENTS ---
+        const BrandCard = ({ brand, perfumes, isPromo = false }) => (
+          <div className={`
+            bg-zinc-900 rounded-xl shadow-xl p-6 h-full flex flex-col justify-between
+            border-2 transition-all duration-300
+            ${isPromo ? 'border-amber-500 hover:shadow-amber-500/50' : 'border-zinc-800 hover:border-amber-500/50'}
+          `}>
+            <div>
+                <h3 className={`text-xl font-playfair-display font-bold mb-3 uppercase tracking-wider ${isPromo ? 'text-amber-400' : 'text-white'}`}>
+                    {brand}
+                </h3>
+                <ul className="space-y-1.5 text-zinc-400 text-sm list-none p-0 ml-0">
+                    {perfumes.map((perfume, index) => (
+                        <li key={index} className="flex items-center space-x-2">
+                            <Droplet size={14} className="text-amber-500 flex-shrink-0" />
+                            <span className="leading-tight">{perfume}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+          </div>
+        );
+
+        const CatalogSection = () => {
+            
+            const processCatalog = (catalog) => {
+                return catalog.map(item => ({
+                    ...item,
+                    brand: Array.isArray(item.brand) ? item.brand[0] : String(item.brand || ''),
+                    perfumes: item.perfumes.map(p => String(p || '')),
+                }));
+            };
+            
+            const safeMenCatalog = processCatalog(menCatalog);
+            const safeWomenCatalog = processCatalog(womenCatalog);
+
+            return (
+                <section id="catalog" className="py-20 md:py-32 bg-stone-950">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <h2 className="text-5xl font-playfair-display font-extrabold text-center text-amber-500 mb-4">
+                            Catalogue des Essences Éternelles
+                        </h2>
+                        <p className="text-xl text-center text-zinc-400 mb-16 max-w-3xl mx-auto font-light italic">
+                            Découvrez notre sélection exclusive de fragrances pour Elle et Lui.
+                        </p>
+
+                        {/* --- PROMOTIONAL OFFER --- */}
+                        <div className="bg-amber-500/10 p-6 rounded-xl mb-16 shadow-inner border border-amber-500/20">
+                            <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+                                <div className="mb-4 md:mb-0">
+                                    <p className="text-sm font-semibold uppercase tracking-widest text-red-400 mb-1">OFFRE LIMITÉE</p>
+                                    <h4 className="text-3xl font-extrabold text-white font-playfair-display">Coffret Découverte (4x30ml)</h4>
+                                    <p className="text-zinc-400 mt-1">Les 4 meilleures essences pour seulement :</p>
+                                </div>
+                                <div className="flex flex-col items-center md:items-end">
+                                    <p className="text-2xl font-medium text-zinc-400 line-through">
+                                        275.00 DH
+                                    </p>
+                                    <p className="text-5xl font-extrabold text-amber-500 leading-none">
+                                        175.00 DH
+                                    </p>
+                                    <a href="#contact" className="mt-3 px-6 py-2 bg-amber-500 text-stone-950 font-bold rounded-full hover:bg-amber-400 transition-colors uppercase text-sm shadow-md">
+                                        Commander Maintenant
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* --- MEN'S COLLECTION ROW --- */}
+                        <div className="mb-20">
+                            <h3 className="text-3xl font-playfair-display font-bold text-white mb-8 border-b-2 border-amber-500/30 pb-2 flex items-center space-x-3">
+                                <Ruler size={24} className="text-amber-500" />
+                                <span>Collection Homme</span>
+                            </h3>
+                            
+                            {/* Brand Catalog Grid */}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+                                {safeMenCatalog.map((item, index) => (
+                                    <BrandCard 
+                                        key={`men-${index}`}
+                                        brand={item.brand} 
+                                        perfumes={item.perfumes}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* --- WOMEN'S COLLECTION ROW --- */}
+                        <div>
+                            <h3 className="text-3xl font-playfair-display font-bold text-white mb-8 border-b-2 border-amber-500/30 pb-2 flex items-center space-x-3">
+                                <Users size={24} className="text-amber-500" />
+                                <span>Collection Femme</span>
+                            </h3>
+                            
+                            {/* Brand Catalog Grid */}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+                                {safeWomenCatalog.map((item, index) => (
+                                    <BrandCard 
+                                        key={`women-${index}`}
+                                        brand={item.brand}
+                                        perfumes={item.perfumes}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="text-center mt-20">
+                            <a href="#how-to-order" className="px-12 py-4 text-lg font-semibold text-white bg-zinc-700 rounded-full shadow-xl transition-transform transform hover:scale-105 hover:bg-amber-500 uppercase tracking-widest">
+                                Processus de Commande
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            );
+        };
+
+        // --- 4. ORDERING SECTION ---
+        const HowToOrderSection = () => (
+            <section id="how-to-order" className="py-20 md:py-32 bg-zinc-900 text-white">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-5xl font-playfair-display font-extrabold text-center text-amber-500 mb-4">
+                        Comment Passer Commande
+                    </h2>
+                    <p className="text-xl text-center text-zinc-400 mb-16 max-w-3xl mx-auto font-light italic">
+                        Votre signature olfactive en 4 étapes simples.
+                    </p>
+
+                    {/* Timeline/Steps Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        
+                        {/* Step 1 */}
+                        <div className="flex flex-col items-center text-center p-6 bg-stone-950 rounded-xl shadow-xl border-t-4 border-amber-500/50 hover:shadow-amber-500/20 transition-all duration-300">
+                            <div className="p-4 bg-amber-500/20 rounded-full mb-4">
+                                <ListChecks size={32} className="text-amber-500" />
+                            </div>
+                            <p className="text-sm font-semibold uppercase tracking-widest text-amber-500 mb-2">Étape 1</p>
+                            <h3 className="text-2xl font-playfair-display font-bold mb-3">Vérifiez le Catalogue</h3>
+                            <p className="text-zinc-400">
+                                Explorez nos collections Homme et Femme pour trouver vos marques préférées.
+                            </p>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div className="flex flex-col items-center text-center p-6 bg-stone-950 rounded-xl shadow-xl border-t-4 border-amber-500/50 hover:shadow-amber-500/20 transition-all duration-300">
+                            <div className="p-4 bg-amber-500/20 rounded-full mb-4">
+                                <ShoppingBag size={32} className="text-amber-500" />
+                            </div>
+                            <p className="text-sm font-semibold uppercase tracking-widest text-amber-500 mb-2">Étape 2</p>
+                            <h3 className="text-2xl font-playfair-display font-bold mb-3">Sélectionnez 4 Parfums</h3>
+                            <p className="text-zinc-400">
+                                Choisissez 4 essences (ou votre sélection du **Coffret Découverte**) à commander.
+                            </p>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="flex flex-col items-center text-center p-6 bg-stone-950 rounded-xl shadow-xl border-t-4 border-amber-500/50 hover:shadow-amber-500/20 transition-all duration-300">
+                            <div className="p-4 bg-amber-500/20 rounded-full mb-4">
+                                <Send size={32} className="text-amber-500" />
+                            </div>
+                            <p className="text-sm font-semibold uppercase tracking-widest text-amber-500 mb-2">Étape 3</p>
+                            <h3 className="text-2xl font-playfair-display font-bold mb-3">Remplissez le Formulaire</h3>
+                            <p className="text-zinc-400">
+                                Soumettez vos coordonnées et votre choix de parfums via le formulaire de commande.
+                            </p>
+                        </div>
+
+                        {/* Step 4 */}
+                        <div className="flex flex-col items-center text-center p-6 bg-stone-950 rounded-xl shadow-xl border-t-4 border-amber-500/50 hover:shadow-amber-500/20 transition-all duration-300">
+                            <div className="p-4 bg-amber-500/20 rounded-full mb-4">
+                                <Clock size={32} className="text-amber-500" />
+                            </div>
+                            <p className="text-sm font-semibold uppercase tracking-widest text-amber-500 mb-2">Étape 4</p>
+                            <h3 className="text-2xl font-playfair-display font-bold mb-3">Confirmation & Livraison</h3>
+                            <p className="text-zinc-400">
+                                Nous vous contactons pour confirmer. **Livraison مضمونة خلال 24 إلى 48 ساعة.**
+                            </p>
+                        </div>
+
+                    </div>
+                    
+                    <div className="text-center mt-16">
+                        <a 
+                            href="#contact" 
+                            className="inline-flex items-center space-x-3 px-10 py-4 text-lg font-semibold text-white bg-zinc-700 rounded-full shadow-xl transition-transform transform hover:scale-105 hover:bg-amber-500 uppercase tracking-widest"
+                        >
+                            <Mail size={20} />
+                            <span>Contacter & Commander</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        );
+
+        // --- 5. ABOUT SECTION ---
+        const AboutSection = () => (
+            <section id="about" className="py-20 md:py-32 bg-stone-950 text-white">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 className="text-5xl font-playfair-display font-extrabold text-center text-amber-500 mb-4">
+                        Notre Histoire
+                    </h2>
+                    <p className="text-xl text-center text-zinc-400 mb-16 max-w-3xl mx-auto font-light italic">
+                        La passion d'une qualité inégalée, créée pour vous.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                        
+                        {/* Image Placeholder */}
+                        <div className="rounded-xl overflow-hidden shadow-2xl">
+                            <img
+                                src="https://placehold.co/600x400/1c1917/f59e0b?text=Egior+Parfum+Qualit%C3%A9"
+                                alt="High quality perfume ingredients"
+                                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/600x400/1c1917/f59e0b?text=Egior+Parfum+Qualit%C3%A9" }}
+                            />
+                        </div>
+
+                        {/* Text Content */}
+                        <div className="space-y-6">
+                            <h3 className="text-3xl font-playfair-display font-bold text-white">
+                                L'Artisanat au Cœur de Chaque Flacon
+                            </h3>
+                            <p className="text-zinc-300 leading-relaxed">
+                                Chez Egior Parfum, nous croyons que le luxe doit être accessible sans compromis sur la qualité. Notre mission est de capturer l'essence des fragrances les plus emblématiques du monde en utilisant les **meilleures matières premières** et une concentration d'huiles essentielles supérieure.
+                            </p>
+                            <ul className="space-y-3 text-zinc-400 list-none p-0">
+                                <li className="flex items-start space-x-3">
+                                    <CheckCircle size={20} className="text-amber-500 mt-1 flex-shrink-0" />
+                                    <span>**Concentration Intense (EDP+):** Pour une tenue qui dure toute la journée et la nuit.</span>
+                                </li>
+                                <li className="flex items-start space-x-3">
+                                    <CheckCircle size={20} className="text-amber-500 mt-1 flex-shrink-0" />
+                                    <span>**Flacon Minimaliste et Écologique:** Un design sobre pour se concentrer sur l'essentiel : le parfum.</span>
+                                </li>
+                                <li className="flex items-start space-x-3">
+                                    <CheckCircle size={20} className="text-amber-500 mt-1 flex-shrink-0" />
+                                    <span>**Satisfaction Garantie:** Nous nous engageons à vous fournir un produit que vous adorerez.</span>
+                                </li>
+                            </ul>
+                            <a href="#catalog" className="mt-4 inline-block text-amber-500 font-semibold hover:text-amber-400 transition-colors">
+                                Explorer la Collection &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        );
+
+
+        // --- 6. CONTACT AND FORM SECTION (Includes RTL support for Arabic names/info) ---
+        const ContactSection = () => {
+            const [formData, setFormData] = useState({ name: '', phone: '', city: '', note: '' });
+            const [isSubmitted, setIsSubmitted] = useState(false);
+            const [error, setError] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            
+            // In a real application, you would replace this mock function
+            // with a call to a backend API (e.g., Firebase, Google Sheets, etc.)
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setIsLoading(true);
+                setError('');
+                setIsSubmitted(false);
+
+                // Basic validation
+                if (!formData.name || !formData.phone || !formData.city) {
+                    setError('Veuillez remplir tous les champs obligatoires (*).');
+                    setIsLoading(false);
+                    return;
+                }
+
+                console.log('Order Submitted:', formData);
+                
+                // Simulate network request delay
+                setTimeout(() => {
+                    // Success simulation
+                    setIsLoading(false);
+                    setIsSubmitted(true);
+                    setFormData({ name: '', phone: '', city: '', note: '' });
+                    
+                    // Hide success message after 5 seconds
+                    setTimeout(() => setIsSubmitted(false), 5000); 
+                }, 2000);
+            };
+
+            const handleChange = (e) => {
+                const { name, value } = e.target;
+                setFormData(prev => ({ ...prev, [name]: value }));
+            };
+
+            return (
+                <section id="contact" className="py-20 md:py-32 bg-stone-950 text-white">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <h2 className="text-5xl font-playfair-display font-extrabold text-center text-amber-500 mb-4">
+                            Contact & Commande
+                        </h2>
+                        <p className="text-xl text-center text-zinc-400 mb-16 max-w-3xl mx-auto font-light italic">
+                            Remplissez le formulaire de commande rapide ci-dessous. Nous vous recontacterons immédiatement pour confirmer vos choix et la livraison.
+                        </p>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 bg-zinc-900 rounded-xl p-8 md:p-12 shadow-2xl border border-amber-500/10">
+                            
+                            {/* 1. Contact Information */}
+                            <div className="lg:col-span-1 space-y-8 pr-0 lg:pr-8 border-b lg:border-b-0 lg:border-r border-zinc-800 pb-8 lg:pb-0">
+                                <h3 className="text-3xl font-playfair-display font-bold text-amber-500 mb-4">
+                                    Contactez-nous
+                                </h3>
+                                <p className="text-zinc-400">
+                                    Nous sommes disponibles 7 jours sur 7 pour prendre vos commandes et répondre à vos questions.
+                                </p>
+
+                                {/* Phone */}
+                                <div className="flex items-center space-x-4">
+                                    <PhoneCall size={24} className="text-amber-500" />
+                                    <div>
+                                        <p className="text-sm text-zinc-500 uppercase tracking-widest">Téléphone / WhatsApp</p>
+                                        <a href="tel:+2126XXXXXXXX" className="text-white text-lg font-semibold hover:text-amber-500 transition-colors" dir="ltr">+212 6 XX XX XX XX</a>
+                                    </div>
+                                </div>
+
+                                {/* Email */}
+                                <div className="flex items-center space-x-4">
+                                    <Mail size={24} className="text-amber-500" />
+                                    <div>
+                                        <p className="text-sm text-zinc-500 uppercase tracking-widest">E-mail</p>
+                                        <a href="mailto:contact@egiorparfum.ma" className="text-white text-lg font-semibold hover:text-amber-500 transition-colors">contact@egiorparfum.ma</a>
+                                    </div>
+                                </div>
+
+                                {/* Location/City (RTL for Arabic readability) */}
+                                <div className="flex items-center space-x-4" dir="rtl">
+                                    <Droplet size={24} className="text-amber-500" />
+                                    <div className="text-right">
+                                        <p className="text-sm text-zinc-500 uppercase tracking-widest" dir="ltr">Siège Social</p>
+                                        <p className="text-white text-lg font-semibold">مراكش (Marrakech)</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 2. Order Form */}
+                            <div className="lg:col-span-2 mt-8 lg:mt-0">
+                                <h3 className="text-3xl font-playfair-display font-bold text-white mb-6">
+                                    Formulaire de Commande Rapide
+                                </h3>
+
+                                {/* Success Message */}
+                                {isSubmitted && (
+                                    <div className="flex items-center p-4 mb-6 text-green-100 bg-green-600 rounded-lg" role="alert">
+                                        <CheckCircle size={20} className="mr-3" />
+                                        <div>
+                                            <span className="font-medium">Commande reçue!</span> Nous vous contacterons bientôt pour confirmer les détails de votre livraison.
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Error Message */}
+                                {error && (
+                                    <div className="flex items-center p-4 mb-6 text-red-100 bg-red-600 rounded-lg" role="alert">
+                                        <X size={20} className="mr-3" />
+                                        <div>
+                                            <span className="font-medium">Erreur :</span> {error}
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    {/* Name */}
+                                    <div>
+                                        <label htmlFor="name" className="block text-sm font-medium text-zinc-400 mb-1">Nom Complet *</label>
+                                        <input
+                                            type="text"
+                                            id="name"
+                                            name="name"
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:ring-amber-500 focus:border-amber-500"
+                                            placeholder="Votre Nom et Prénom"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Phone (with explicit RTL direction for number input) */}
+                                    <div dir="ltr">
+                                        <label htmlFor="phone" className="block text-sm font-medium text-zinc-400 mb-1" dir="ltr">Numéro de Téléphone (WhatsApp) *</label>
+                                        <input
+                                            type="tel"
+                                            id="phone"
+                                            name="phone"
+                                            value={formData.phone}
+                                            onChange={handleChange}
+                                            className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:ring-amber-500 focus:border-amber-500"
+                                            placeholder="Ex: 06 XX XX XX XX"
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* City */}
+                                    <div>
+                                        <label htmlFor="city" className="block text-sm font-medium text-zinc-400 mb-1">Ville de Livraison *</label>
+                                        <input
+                                            type="text"
+                                            id="city"
+                                            name="city"
+                                            value={formData.city}
+                                            onChange={handleChange}
+                                            className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:ring-amber-500 focus:border-amber-500"
+                                            placeholder="Ex: Casablanca, Rabat, Fès..."
+                                            required
+                                        />
+                                    </div>
+
+                                    {/* Notes/Perfume Choice */}
+                                    <div>
+                                        <label htmlFor="note" className="block text-sm font-medium text-zinc-400 mb-1">Votre Commande (Ex: 2x Sauvage, 2x Coco Mademoiselle)</label>
+                                        <textarea
+                                            id="note"
+                                            name="note"
+                                            rows="4"
+                                            value={formData.note}
+                                            onChange={handleChange}
+                                            className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:ring-amber-500 focus:border-amber-500"
+                                            placeholder="Veuillez lister les 4 parfums choisis ou indiquez 'Coffret Découverte'."
+                                        />
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading}
+                                        className={`w-full py-3 mt-4 text-lg font-bold rounded-lg transition-colors flex items-center justify-center space-x-2 
+                                            ${isLoading ? 'bg-amber-700 cursor-not-allowed' : 'bg-amber-500 text-stone-950 hover:bg-amber-400'}`}
+                                    >
+                                        {isLoading && (
+                                            <svg className="animate-spin h-5 w-5 text-stone-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        )}
+                                        <span>{isLoading ? 'Envoi...' : 'Passer la Commande (Payer à la livraison)'}</span>
+                                    </button>
+                                    <p className="text-xs text-zinc-500 text-center mt-2">
+                                        * Le paiement est effectué uniquement à la réception de votre commande.
+                                    </p>
+                                </form>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </section>
+            );
+        }
+
+        // --- 7. FOOTER COMPONENT ---
+        const Footer = () => (
+            <footer className="bg-zinc-900 border-t border-amber-500/10 text-zinc-400 py-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                    <div className="text-sm text-center md:text-left">
+                        &copy; {new Date().getFullYear()} Egior Parfum. Tous droits réservés.
+                        <p className="mt-1 text-xs">Conçu avec élégance.</p>
+                    </div>
+                    <div className="flex space-x-6">
+                        <a href="#home" className="hover:text-amber-500 transition-colors text-sm">Accueil</a>
+                        <a href="#catalog" className="hover:text-amber-500 transition-colors text-sm">Catalogue</a>
+                        <a href="#contact" className="hover:text-amber-500 transition-colors text-sm">Contact</a>
+                    </div>
+                </div>
+            </footer>
+        );
+
+        // --- 8. MAIN APP COMPONENT ---
+        const App = () => {
+            // Scroll to the top on component mount (useful for navigation after hash changes)
+            useEffect(() => {
+                window.scrollTo(0, 0);
+            }, []);
+
+            return (
+                <div className="font-inter antialiased bg-stone-950 min-h-screen">
+                    <Header />
+                    <main>
+                        <HeroSection />
+                        <CatalogSection />
+                        <HowToOrderSection />
+                        <AboutSection />
+                        <ContactSection />
+                    </main>
+                    <Footer />
+                </div>
+            );
+        };
+
+        // Render the App component into the root element
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
